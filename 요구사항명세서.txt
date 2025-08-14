@@ -4,7 +4,7 @@
 
 <기술 스택>
 
-Next.js v15 (최신 버전)
+Next.js (최신 버전)
 App Router : 직관적인 파일 시스템 기반 라우팅
 Server Components : 서버 사이드 렌더링으로 최적화된 성능 제공
 ISR (Incremental Static Regeneration) : 정적 페이지의 동적 업데이트 지원
