@@ -4,7 +4,7 @@ import { CategoryFilter } from "@/components/category-filter";
 import { SearchBar } from "@/components/search-bar";
 import { getAllPosts } from "@/lib/notion";
 import { CategorySidebar } from "@/components/category-sidebar";
-import { UserProfile } from "@/components/user-profile";
+
 import { MobileSidebar } from "@/components/mobile-sidebar";
 
 export const metadata: Metadata = {

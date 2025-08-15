@@ -41,7 +41,7 @@ export function MarkdownRenderer({ content }: MarkdownRendererProps) {
             </code>
           );
         },
-        img({ src, alt, ...props }: any) {
+        img({ src, ...props }: any) {
           if (!src) return null;
           return (
             <div className="relative my-6 w-full">

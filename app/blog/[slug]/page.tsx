@@ -7,12 +7,11 @@ import { formatDate } from "@/lib/utils";
 import { MarkdownRenderer } from "@/components/markdown-renderer";
 import { Comments } from "@/components/comments";
 import { RelatedPosts } from "@/components/related-posts";
-import { UserProfile } from "@/components/user-profile";
 
 interface BlogPostPageProps {
-  params: {
+  params: Promise<{
     slug: string;
-  };
+  }>;
 }
 
 export async function generateStaticParams() {
@@ -24,8 +23,9 @@ export async function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: BlogPostPageProps): Promise<Metadata> {
-  const slug = decodeURIComponent(params.slug);
-  const post = await getPostBySlug(slug);
+  const { slug } = await params;
+  const decoded = decodeURIComponent(slug);
+  const post = await getPostBySlug(decoded);
 
   if (!post) {
     return {
@@ -56,8 +56,9 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
 }
 
 export default async function BlogPostPage({ params }: BlogPostPageProps) {
-  const slug = decodeURIComponent(params.slug);
-  const post = await getPostBySlug(slug);
+  const { slug } = await params;
+  const decoded = decodeURIComponent(slug);
+  const post = await getPostBySlug(decoded);
 
   if (!post) {
     notFound();
