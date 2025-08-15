@@ -22,37 +22,9 @@ export async function generateStaticParams() {
   }));
 }
 
-export async function generateMetadata({ params }: BlogPostPageProps): Promise<Metadata> {
-  const { slug } = await params;
-  const decoded = decodeURIComponent(slug);
-  const post = await getPostBySlug(decoded);
-
-  if (!post) {
-    return {
-      title: "포스트를 찾을 수 없습니다",
-    };
-  }
-
-  return {
-    title: post.title,
-    description: post.excerpt,
-    keywords: post.tags,
-    openGraph: {
-      title: post.title,
-      description: post.excerpt,
-      type: "article",
-      publishedTime: post.publishedAt,
-      modifiedTime: post.updatedAt,
-      images: post.coverImage ? [post.coverImage] : [],
-      tags: post.tags,
-    },
-    twitter: {
-      card: "summary_large_image",
-      title: post.title,
-      description: post.excerpt,
-      images: post.coverImage ? [post.coverImage] : [],
-    },
-  };
+// 페이지별 메타데이터를 설정하지 않아 전역(레이아웃)의 타이틀을 유지합니다
+export async function generateMetadata() {
+  return {} as Metadata;
 }
 
 export default async function BlogPostPage({ params }: BlogPostPageProps) {

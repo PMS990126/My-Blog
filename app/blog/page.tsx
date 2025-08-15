@@ -1,4 +1,3 @@
-import { Metadata } from "next";
 import { BlogPostCard } from "@/components/blog-post-card";
 import { CategoryFilter } from "@/components/category-filter";
 import { SearchBar } from "@/components/search-bar";
@@ -6,11 +5,6 @@ import { getAllPosts } from "@/lib/notion";
 import { CategorySidebar } from "@/components/category-sidebar";
 
 import { MobileSidebar } from "@/components/mobile-sidebar";
-
-export const metadata: Metadata = {
-  title: "블로그 포스트",
-  description: "개발 경험과 학습 내용을 공유하는 기술 블로그 포스트들입니다.",
-};
 
 interface BlogPageProps {
   searchParams: Promise<{
