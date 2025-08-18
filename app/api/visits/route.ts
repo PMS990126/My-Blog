@@ -99,7 +99,9 @@ async function incrCounts() {
 }
 
 export async function POST(req: NextRequest) {
-  if (isBotOrPrefetch(req)) {
+  const { searchParams } = new URL(req.url);
+  const force = searchParams.get("force") === "1";
+  if (!force && process.env.VISITS_FILTER_BOTS !== "false" && isBotOrPrefetch(req)) {
     const counts = await getCounts();
     return new Response(JSON.stringify({ ...counts, ignored: true }), {
       headers: { "Content-Type": "application/json", "Cache-Control": "no-store" },

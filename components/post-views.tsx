@@ -10,7 +10,7 @@ export function PostViews({ slug }: { slug: string }) {
     let cancelled = false;
     const run = async () => {
       try {
-        await fetch(`/api/post-views?slug=${encodeURIComponent(slug)}`, {
+        await fetch(`/api/post-views?slug=${encodeURIComponent(slug)}&force=1`, {
           method: "POST",
           cache: "no-store",
         });

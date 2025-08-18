@@ -18,7 +18,7 @@ export function VisitsWidget() {
     const run = async () => {
       try {
         setUpdating(true);
-        await fetch("/api/visits", { method: "POST", cache: "no-store" });
+        await fetch("/api/visits?force=1", { method: "POST", cache: "no-store" });
         const res = await fetch("/api/visits", { method: "GET", cache: "no-store" });
         if (!res.ok) throw new Error("failed");
         const data = (await res.json()) as Visits;

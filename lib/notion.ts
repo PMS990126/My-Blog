@@ -271,7 +271,8 @@ async function convertNotionPageToBlogPost(
       status: (status as "published" | "draft") || "published",
       coverImage:
         getCoverImage(page.cover) ||
-        (includeContent ? extractFirstImageFromMarkdown(content) : undefined) ||
+        // 목록/상세 모두에서 가능하면 본문 첫 이미지 사용
+        extractFirstImageFromMarkdown(content) ||
         getAutoOgImage(
           title,
           getPropertyValue(getPropertyByNames(properties, ["Category", "카테고리"])) || undefined
