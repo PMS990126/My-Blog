@@ -29,7 +29,7 @@ export function VisitsWidget() {
           const j = await stats.json();
           if (!cancelled) setHours(j.hours ?? null);
         }
-      } catch (e) {
+      } catch {
         if (!cancelled) setError("집계 오류");
       } finally {
         if (!cancelled) setUpdating(false);

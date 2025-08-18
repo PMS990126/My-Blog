@@ -21,7 +21,7 @@ export function PostViews({ slug }: { slug: string }) {
         if (!res.ok) throw new Error("failed");
         const data = (await res.json()) as { views: number };
         if (!cancelled) setViews(data.views);
-      } catch (e) {
+      } catch {
         if (!cancelled) setError("-");
       }
     };

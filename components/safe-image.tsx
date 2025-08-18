@@ -13,8 +13,8 @@ export function SafeImage({ fallbackSrc, alt, ...props }: SafeImageProps) {
   if (failed && (props as any).src) {
     const src = (props as any).src as string;
     // fallback: 기본 img로 렌더링 (Next Image 제약 우회)
+    // eslint-disable-next-line @next/next/no-img-element
     return (
-      // fill 대응: 부모 컨테이너가 position:relative여야 하며, objectFit 유지
       <img
         src={fallbackSrc || src}
         alt={alt || ""}

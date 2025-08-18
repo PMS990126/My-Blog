@@ -1,5 +1,5 @@
 import Link from "next/link";
-import Image from "next/image";
+// Image intentionally not used directly; SafeImage wraps it
 import { SafeImage } from "@/components/safe-image";
 import { Calendar } from "lucide-react";
 import { BlogPost } from "@/lib/notion";

@@ -13,7 +13,7 @@ interface CategorySidebarProps {
 }
 
 export function CategorySidebar({
-  categories,
+  categories: _categories,
   posts,
   nowIso,
   currentCategory,

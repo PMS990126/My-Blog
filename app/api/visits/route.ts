@@ -4,7 +4,7 @@ import { NextRequest } from "next/server";
 const UPSTASH_URL = process.env.UPSTASH_REDIS_REST_URL;
 const UPSTASH_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN;
 
-let memory = {
+const memory = {
   total: 0,
   today: 0,
   day: new Date().toDateString(),
