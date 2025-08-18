@@ -51,10 +51,7 @@ async function redis(path: string, body: any[]) {
 export async function POST(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const slug = searchParams.get("slug");
-  const force = searchParams.get("force") === "1";
   if (!slug) return new Response(JSON.stringify({ error: "slug required" }), { status: 400 });
-  if (!force && process.env.VISITS_FILTER_BOTS !== "false" && isBotOrPrefetch(req))
-    return new Response(JSON.stringify({ ok: true, ignored: true }), { status: 200 });
 
   if (!UPSTASH_URL || !UPSTASH_TOKEN) {
     memory[slug] = (memory[slug] || 0) + 1;

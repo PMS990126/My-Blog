@@ -98,15 +98,8 @@ async function incrCounts() {
   return await getCounts();
 }
 
-export async function POST(req: NextRequest) {
-  const { searchParams } = new URL(req.url);
-  const force = searchParams.get("force") === "1";
-  if (!force && process.env.VISITS_FILTER_BOTS !== "false" && isBotOrPrefetch(req)) {
-    const counts = await getCounts();
-    return new Response(JSON.stringify({ ...counts, ignored: true }), {
-      headers: { "Content-Type": "application/json", "Cache-Control": "no-store" },
-    });
-  }
+export async function POST() {
+  // 단순화: 누구든 호출 시 +1 (봇/프리페치도 포함, 단순 카운트 요구대로)
   const counts = await incrCounts();
   return new Response(JSON.stringify(counts), {
     headers: { "Content-Type": "application/json", "Cache-Control": "no-store" },

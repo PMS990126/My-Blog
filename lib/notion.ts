@@ -82,8 +82,8 @@ export const getAllPostsSummary = cache(async (): Promise<BlogPost[]> => {
 
     const posts = await Promise.all(
       response.results.map(async (page: any) => {
-        // 목록에서는 본문 변환 생략(cover 없을 때는 자동 OG 이미지로 대체)
-        return await convertNotionPageToBlogPost(page, false);
+        // 목록에서도 본문을 변환하여 첫 이미지 추출이 가능하도록 함
+        return await convertNotionPageToBlogPost(page, true);
       })
     );
 
@@ -269,14 +269,8 @@ async function convertNotionPageToBlogPost(
         ) || page.created_time,
       updatedAt: page.last_edited_time,
       status: (status as "published" | "draft") || "published",
-      coverImage:
-        getCoverImage(page.cover) ||
-        // 목록/상세 모두에서 가능하면 본문 첫 이미지 사용
-        extractFirstImageFromMarkdown(content) ||
-        getAutoOgImage(
-          title,
-          getPropertyValue(getPropertyByNames(properties, ["Category", "카테고리"])) || undefined
-        ),
+      // 썸네일 우선순위: 본문 첫 이미지 > 노션 커버(기본 이미지)
+      coverImage: extractFirstImageFromMarkdown(content) || getCoverImage(page.cover) || undefined,
       readTime,
     };
   } catch (error) {
