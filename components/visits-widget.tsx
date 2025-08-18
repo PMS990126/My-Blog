@@ -15,10 +15,10 @@ export function VisitsWidget() {
 
   useEffect(() => {
     let cancelled = false;
-    const run = async () => {
+    const refresh = async () => {
       try {
         setUpdating(true);
-        await fetch("/api/visits", { method: "POST", cache: "no-store" });
+        // 카운트 증가는 최초 1회만, 이후에는 GET으로만 갱신
         const res = await fetch("/api/visits", { method: "GET", cache: "no-store" });
         if (!res.ok) throw new Error("failed");
         const data = (await res.json()) as Visits;
@@ -35,35 +35,37 @@ export function VisitsWidget() {
         if (!cancelled) setUpdating(false);
       }
     };
-    run();
-    // 주기적 갱신(10초)
-    const intervalId = setInterval(async () => {
+    // 최초 방문(로드) 시 1회 증가 + 최신 값 반영
+    (async () => {
       try {
-        if (cancelled) return;
-        const res = await fetch("/api/visits", { method: "GET", cache: "no-store" });
-        if (res.ok) {
-          const data = (await res.json()) as Visits;
-          if (!cancelled) setVisits(data);
-        }
-        const stats = await fetch("/api/visits/stats", { cache: "no-store" });
-        if (stats.ok) {
-          const j = await stats.json();
-          if (!cancelled) setHours(j.hours ?? null);
-        }
-      } catch {
-        /* no-op */
+        setUpdating(true);
+        await fetch("/api/visits", { method: "POST", cache: "no-store" });
+      } finally {
+        await refresh();
       }
-    }, 10000);
+    })();
+
+    // 포커스/가시성/온라인 복귀 시만 갱신 → 불필요한 폴링 제거
+    const onFocus = () => refresh();
+    const onVisible = () => {
+      if (document.visibilityState === "visible") refresh();
+    };
+    const onOnline = () => refresh();
+    window.addEventListener("focus", onFocus);
+    document.addEventListener("visibilitychange", onVisible);
+    window.addEventListener("online", onOnline);
     return () => {
       cancelled = true;
-      clearInterval(intervalId);
+      window.removeEventListener("focus", onFocus);
+      document.removeEventListener("visibilitychange", onVisible);
+      window.removeEventListener("online", onOnline);
     };
   }, []);
 
   return (
     <div className="mt-6 overflow-hidden rounded-xl border border-border bg-gradient-to-b from-card to-card/60 p-0 shadow-sm">
       <div className="flex items-center justify-between border-b border-border/60 bg-muted/40 px-4 py-3">
-        <p className="text-sm font-semibold text-card-foreground">방문 통계</p>
+        <p className="text-sm font-semibold text-card-foreground">방문자 통계</p>
         <span
           className={`h-2 w-2 rounded-full ${updating ? "animate-pulse bg-primary" : "bg-emerald-500"}`}
           aria-hidden
@@ -71,7 +73,7 @@ export function VisitsWidget() {
       </div>
       <div className="grid grid-cols-2 gap-0">
         <div className="flex flex-col items-center justify-center gap-1 p-5">
-          <span className="text-xs uppercase tracking-wide text-muted-foreground">오늘</span>
+          <span className="text-xs uppercase tracking-wide text-muted-foreground">Today</span>
           {error ? (
             <span className="text-sm text-muted-foreground">오류</span>
           ) : visits ? (
@@ -81,7 +83,7 @@ export function VisitsWidget() {
           )}
         </div>
         <div className="flex flex-col items-center justify-center gap-1 border-l border-border p-5">
-          <span className="text-xs uppercase tracking-wide text-muted-foreground">누적</span>
+          <span className="text-xs uppercase tracking-wide text-muted-foreground">Total</span>
           {error ? (
             <span className="text-sm text-muted-foreground">오류</span>
           ) : visits ? (
