@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 
 // 인터섹션 옵저버로 화면에 보일 때만 스크립트 주입
-function useOnScreen<T extends Element>(ref: React.RefObject<T>, rootMargin: string = "0px") {
+function useOnScreen(ref: React.RefObject<Element | null>, rootMargin: string = "0px") {
   const isVisibleRef = useRef(false);
   const [isVisible, setIsVisible] = useState(false);
   useEffect(() => {
