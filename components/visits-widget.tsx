@@ -36,8 +36,27 @@ export function VisitsWidget() {
       }
     };
     run();
+    // 주기적 갱신(10초)
+    const intervalId = setInterval(async () => {
+      try {
+        if (cancelled) return;
+        const res = await fetch("/api/visits", { method: "GET", cache: "no-store" });
+        if (res.ok) {
+          const data = (await res.json()) as Visits;
+          if (!cancelled) setVisits(data);
+        }
+        const stats = await fetch("/api/visits/stats", { cache: "no-store" });
+        if (stats.ok) {
+          const j = await stats.json();
+          if (!cancelled) setHours(j.hours ?? null);
+        }
+      } catch {
+        /* no-op */
+      }
+    }, 10000);
     return () => {
       cancelled = true;
+      clearInterval(intervalId);
     };
   }, []);
 

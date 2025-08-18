@@ -25,6 +25,18 @@ async function redisFetch(path: string, body: any[]) {
   return (await res.json()) as { result: any };
 }
 
+async function redisPath(command: string, ...args: (string | number)[]) {
+  if (!UPSTASH_URL || !UPSTASH_TOKEN) return null;
+  const url = `${UPSTASH_URL}/${[command, ...args.map(String).map(encodeURIComponent)].join("/")}`;
+  const res = await fetch(url, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${UPSTASH_TOKEN}` },
+    cache: "no-store",
+  });
+  if (!res.ok) return null;
+  return (await res.json()) as { result: any };
+}
+
 function isBotOrPrefetch(req: Request): boolean {
   const ua = (req.headers.get("user-agent") || "").toLowerCase();
   const purpose = (
@@ -64,10 +76,10 @@ async function getCounts() {
 
   const todayKey = `visits:day:${new Date().toDateString()}`;
   const totalKey = `visits:total`;
-  const getToday = await redisFetch("mget", [[todayKey]]);
-  const getTotal = await redisFetch("mget", [[totalKey]]);
-  const today = Number(getToday?.result?.[0] || 0);
-  const total = Number(getTotal?.result?.[0] || 0);
+  const todayRes = await redisPath("get", todayKey);
+  const totalRes = await redisPath("get", totalKey);
+  const today = Number(todayRes?.result ?? 0);
+  const total = Number(totalRes?.result ?? 0);
   return { total, today };
 }
 
@@ -86,15 +98,11 @@ async function incrCounts() {
   const todayKey = `visits:day:${now.toDateString()}`;
   const totalKey = `visits:total`;
   const hourKey = `visits:hour:${now.toISOString().slice(0, 10)}:${now.getHours()}`;
-  await redisFetch("pipeline", [
-    [
-      ["INCR", todayKey],
-      ["EXPIRE", todayKey, 60 * 60 * 24 * 2],
-      ["INCR", totalKey],
-      ["INCR", hourKey],
-      ["EXPIRE", hourKey, 60 * 60 * 48],
-    ],
-  ]);
+  await redisPath("incr", todayKey);
+  await redisPath("expire", todayKey, 60 * 60 * 24 * 2);
+  await redisPath("incr", totalKey);
+  await redisPath("incr", hourKey);
+  await redisPath("expire", hourKey, 60 * 60 * 48);
   return await getCounts();
 }
 

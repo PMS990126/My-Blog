@@ -33,15 +33,12 @@ function isBotOrPrefetch(req: NextRequest): boolean {
   return botTokens.some((t) => ua.includes(t));
 }
 
-async function redis(path: string, body: any[]) {
+async function redisPath(command: string, ...args: (string | number)[]) {
   if (!UPSTASH_URL || !UPSTASH_TOKEN) return null;
-  const res = await fetch(`${UPSTASH_URL}/${path}`, {
+  const url = `${UPSTASH_URL}/${[command, ...args.map(String).map(encodeURIComponent)].join("/")}`;
+  const res = await fetch(url, {
     method: "POST",
-    headers: {
-      Authorization: `Bearer ${UPSTASH_TOKEN}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ body }),
+    headers: { Authorization: `Bearer ${UPSTASH_TOKEN}` },
     cache: "no-store",
   });
   if (!res.ok) return null;
@@ -60,9 +57,9 @@ export async function POST(req: NextRequest) {
     });
   }
   const key = `post:views:${slug}`;
-  await redis("pipeline", [[["INCR", key]]]);
-  const res = await redis("mget", [[key]]);
-  const views = Number(res?.result?.[0] || 0);
+  await redisPath("incr", key);
+  const res = await redisPath("get", key);
+  const views = Number(res?.result ?? 0);
   return new Response(JSON.stringify({ views }), {
     headers: { "Content-Type": "application/json" },
   });
@@ -78,8 +75,8 @@ export async function GET(req: NextRequest) {
     });
   }
   const key = `post:views:${slug}`;
-  const res = await redis("mget", [[key]]);
-  const views = Number(res?.result?.[0] || 0);
+  const res = await redisPath("get", key);
+  const views = Number(res?.result ?? 0);
   return new Response(JSON.stringify({ views }), {
     headers: { "Content-Type": "application/json" },
   });
