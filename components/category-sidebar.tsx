@@ -13,7 +13,7 @@ interface CategorySidebarProps {
 }
 
 export function CategorySidebar({
-  categories: _categories,
+  categories: _categories, // intentionally unused (preset list is fixed)
   posts,
   nowIso,
   currentCategory,

@@ -13,7 +13,7 @@ export function SafeImage({ fallbackSrc, alt, ...props }: SafeImageProps) {
   if (failed && (props as any).src) {
     const src = (props as any).src as string;
     // fallback: 기본 img로 렌더링 (Next Image 제약 우회)
-    // eslint-disable-next-line @next/next/no-img-element
+    // eslint-disable-next-line @next/next/no-img-element -- Safe fallback when remote image domain is not whitelisted or fails
     return (
       <img
         src={fallbackSrc || src}
