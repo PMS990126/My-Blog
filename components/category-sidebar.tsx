@@ -1,7 +1,4 @@
-"use client";
-
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
 import { Folder, Tag, Calendar, Hash } from "lucide-react";
 
 interface CategorySidebarProps {
@@ -12,12 +9,15 @@ interface CategorySidebarProps {
     publishedAt: string;
   }>;
   nowIso?: string;
+  currentCategory?: string | null;
 }
 
-export function CategorySidebar({ categories, posts, nowIso }: CategorySidebarProps) {
-  const searchParams = useSearchParams();
-  const currentCategory = searchParams.get("category");
-
+export function CategorySidebar({
+  categories,
+  posts,
+  nowIso,
+  currentCategory,
+}: CategorySidebarProps) {
   // 고정 노출 카테고리(요청 순서 유지)
   const PRESET_CATEGORIES: string[] = [
     "HTML / CSS",
@@ -192,6 +192,7 @@ export function CategorySidebar({ categories, posts, nowIso }: CategorySidebarPr
         <div className="space-y-2">
           <Link
             href="/"
+            prefetch={false}
             className={`block rounded-lg px-3 py-2 text-sm transition-colors ${
               !currentCategory
                 ? "bg-primary text-primary-foreground"
@@ -204,6 +205,7 @@ export function CategorySidebar({ categories, posts, nowIso }: CategorySidebarPr
             <Link
               key={category}
               href={`/?category=${encodeURIComponent(category)}`}
+              prefetch={false}
               className={`block rounded-lg px-3 py-2 text-sm transition-colors ${
                 currentCategory === category
                   ? "bg-primary text-primary-foreground"
@@ -227,6 +229,7 @@ export function CategorySidebar({ categories, posts, nowIso }: CategorySidebarPr
             <Link
               key={tag.name}
               href={`/blog?search=${encodeURIComponent(tag.name)}`}
+              prefetch={false}
               className="inline-flex items-center rounded-full bg-muted px-3 py-1 text-xs text-muted-foreground transition-colors hover:bg-primary hover:text-primary-foreground"
             >
               <Hash className="mr-1 h-3 w-3" />

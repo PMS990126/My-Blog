@@ -49,7 +49,7 @@ export const getAllPosts = cache(async (): Promise<BlogPost[]> => {
 
     const posts = await Promise.all(
       response.results.map(async (page: any) => {
-        // 목록에서도 콘텐츠를 변환하여 첫 이미지 추출 및 읽기시간 계산
+        // 전체 데이터(본문 포함) 변환
         return await convertNotionPageToBlogPost(page, true);
       })
     );
@@ -68,6 +68,38 @@ export const getAllPosts = cache(async (): Promise<BlogPost[]> => {
     return publishedPosts;
   } catch (error) {
     console.error("Error fetching posts:", error);
+    return [];
+  }
+});
+
+// 목록/사이드바/연관글 등에서 가벼운 데이터만 필요한 경우를 위한 경량 API
+// 본문 변환을 생략하여 Notion 호출 비용과 변환 시간을 절약합니다.
+export const getAllPostsSummary = cache(async (): Promise<BlogPost[]> => {
+  try {
+    const response = await notion.databases.query({
+      database_id: databaseId,
+    });
+
+    const posts = await Promise.all(
+      response.results.map(async (page: any) => {
+        // 목록에서는 본문 변환 생략(cover 없을 때는 자동 OG 이미지로 대체)
+        return await convertNotionPageToBlogPost(page, false);
+      })
+    );
+
+    const publishedPosts = (posts.filter(Boolean) as BlogPost[]).filter(
+      (post) => post.status && post.status.toLowerCase() === "published"
+    );
+
+    publishedPosts.sort((a, b) => {
+      const aTime = a.publishedAt ? new Date(a.publishedAt).getTime() : 0;
+      const bTime = b.publishedAt ? new Date(b.publishedAt).getTime() : 0;
+      return bTime - aTime;
+    });
+
+    return publishedPosts;
+  } catch (error) {
+    console.error("Error fetching posts summary:", error);
     return [];
   }
 });

@@ -7,6 +7,7 @@ const nextConfig: NextConfig = {
       "prod-files-secure.s3.us-west-2.amazonaws.com",
       "s3.us-west-2.amazonaws.com",
       "www.notion.so",
+      "og-image.vercel.app",
     ],
     remotePatterns: [
       {

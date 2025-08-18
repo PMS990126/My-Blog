@@ -1,7 +1,8 @@
+export const revalidate = 300;
 import { BlogPostCard } from "@/components/blog-post-card";
 import { CategoryFilter } from "@/components/category-filter";
 import { SearchBar } from "@/components/search-bar";
-import { getAllPosts } from "@/lib/notion";
+import { getAllPostsSummary } from "@/lib/notion";
 import { CategorySidebar } from "@/components/category-sidebar";
 
 import { MobileSidebar } from "@/components/mobile-sidebar";
@@ -15,7 +16,7 @@ interface BlogPageProps {
 
 export default async function BlogPage({ searchParams }: BlogPageProps) {
   const { category, search } = await searchParams;
-  const posts = await getAllPosts();
+  const posts = await getAllPostsSummary();
   const nowIso = new Date().toISOString();
 
   // 그룹 라벨 매핑 함수 (사이드바와 동일 기준)
@@ -284,6 +285,7 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
                 publishedAt: p.publishedAt,
               }))}
               nowIso={nowIso}
+              currentCategory={category ?? null}
             />
           </aside>
 

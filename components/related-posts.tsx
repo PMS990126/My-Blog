@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-import { BlogPost, getAllPosts } from "@/lib/notion";
+import { BlogPost, getAllPostsSummary } from "@/lib/notion";
 import { BlogPostCard } from "./blog-post-card";
 
 interface RelatedPostsProps {
@@ -8,7 +8,7 @@ interface RelatedPostsProps {
 }
 
 export async function RelatedPosts({ currentPost }: RelatedPostsProps) {
-  const allPosts = await getAllPosts();
+  const allPosts = await getAllPostsSummary();
 
   const relatedPosts = allPosts
     .filter((post) => post.id !== currentPost.id)
@@ -26,6 +26,7 @@ export async function RelatedPosts({ currentPost }: RelatedPostsProps) {
           <h2 className="text-2xl font-bold text-foreground">관련 포스트</h2>
           <Link
             href="/blog"
+            prefetch={false}
             className="inline-flex items-center font-medium text-primary transition-colors hover:text-primary/80"
           >
             모든 포스트 보기
@@ -43,6 +44,7 @@ export async function RelatedPosts({ currentPost }: RelatedPostsProps) {
         <h2 className="text-2xl font-bold text-foreground">관련 포스트</h2>
         <Link
           href="/blog"
+          prefetch={false}
           className="inline-flex items-center font-medium text-primary transition-colors hover:text-primary/80"
         >
           모든 포스트 보기

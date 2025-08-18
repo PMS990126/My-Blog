@@ -1,5 +1,5 @@
 import { Metadata } from "next";
-import { getAllPosts } from "@/lib/notion";
+import { getAllPostsSummary } from "@/lib/notion";
 import { BlogPostCard } from "@/components/blog-post-card";
 import { CategorySidebar } from "@/components/category-sidebar";
 import { BlogHeader } from "@/components/blog-header";
@@ -11,6 +11,8 @@ export const metadata: Metadata = {
   description: "프론트엔드 개발자가 되기 위해 내가 학습한 기술과 경험을 기록하는 장소",
 };
 
+export const revalidate = 300;
+
 interface HomePageProps {
   searchParams: Promise<{
     category?: string;
@@ -19,7 +21,7 @@ interface HomePageProps {
 
 export default async function Home({ searchParams }: HomePageProps) {
   const { category } = await searchParams;
-  const allPosts = await getAllPosts();
+  const allPosts = await getAllPostsSummary();
   const categories = Array.from(new Set(allPosts.map((post) => post.category)));
   const nowIso = new Date().toISOString();
 
@@ -153,6 +155,7 @@ export default async function Home({ searchParams }: HomePageProps) {
                 publishedAt: p.publishedAt,
               }))}
               nowIso={nowIso}
+              currentCategory={category ?? null}
             />
           </aside>
 

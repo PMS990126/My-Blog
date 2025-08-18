@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { Github } from "lucide-react";
+import { VisitsWidget } from "@/components/visits-widget";
 
 export function UserProfile() {
   return (
@@ -41,6 +42,8 @@ export function UserProfile() {
           <Github className="h-5 w-5" />
         </a>
       </div>
+
+      <VisitsWidget />
     </div>
   );
 }

@@ -2,7 +2,7 @@
 
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+import dynamic from "next/dynamic";
 import { vscDarkPlus, vs } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { useTheme } from "next-themes";
 import Image from "next/image";
@@ -13,6 +13,13 @@ interface MarkdownRendererProps {
 
 export function MarkdownRenderer({ content }: MarkdownRendererProps) {
   const { theme } = useTheme();
+  const SyntaxHighlighter = dynamic(
+    async () => {
+      const mod = await import("react-syntax-highlighter");
+      return mod.Prism;
+    },
+    { ssr: false }
+  );
 
   return (
     <ReactMarkdown
@@ -43,17 +50,17 @@ export function MarkdownRenderer({ content }: MarkdownRendererProps) {
         },
         img({ src, ...props }: any) {
           if (!src) return null;
+          // div로 감싸면 p 내부에 block이 중첩되어 hydration 에러가 발생할 수 있음
           return (
-            <div className="relative my-6 w-full">
-              <Image
-                src={src}
-                alt=""
-                width={800}
-                height={600}
-                className="mx-auto rounded-lg"
-                {...props}
-              />
-            </div>
+            <Image
+              src={src}
+              alt=""
+              width={800}
+              height={600}
+              sizes="100vw"
+              className="mx-auto my-6 rounded-lg"
+              {...props}
+            />
           );
         },
         blockquote({ children, ...props }: any) {

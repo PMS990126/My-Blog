@@ -1,3 +1,4 @@
+export const revalidate = 300;
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
@@ -5,8 +6,11 @@ import { Calendar, Tag } from "lucide-react";
 import { getPostBySlug, getAllPosts } from "@/lib/notion";
 import { formatDate } from "@/lib/utils";
 import { MarkdownRenderer } from "@/components/markdown-renderer";
+import type { Metadata } from "next";
+import Script from "next/script";
 import { Comments } from "@/components/comments";
 import { RelatedPosts } from "@/components/related-posts";
+import { PostViews } from "@/components/post-views";
 
 interface BlogPostPageProps {
   params: Promise<{
@@ -23,8 +27,34 @@ export async function generateStaticParams() {
 }
 
 // 페이지별 메타데이터를 설정하지 않아 전역(레이아웃)의 타이틀을 유지합니다
-export async function generateMetadata() {
-  return {} as Metadata;
+export async function generateMetadata({ params }: BlogPostPageProps) {
+  const { slug } = await params;
+  const decoded = decodeURIComponent(slug);
+  const post = await getPostBySlug(decoded);
+  if (!post) return {} as Metadata;
+  const title = post.title;
+  const description = post.excerpt || post.title;
+  const ogImage = post.coverImage;
+  return {
+    title: `${title}`,
+    description,
+    alternates: {
+      canonical: `https://my-blog.com/blog/${post.slug}`,
+    },
+    openGraph: {
+      title,
+      description,
+      type: "article",
+      url: `https://my-blog.com/blog/${post.slug}`,
+      images: ogImage ? [{ url: ogImage }] : undefined,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: ogImage ? [ogImage] : undefined,
+    },
+  } satisfies Metadata;
 }
 
 export default async function BlogPostPage({ params }: BlogPostPageProps) {
@@ -64,6 +94,8 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
 
                 {/* read time intentionally omitted */}
 
+                <PostViews slug={post.slug} />
+
                 {post.tags.length > 0 && (
                   <div className="flex items-center gap-2">
                     <Tag className="h-4 w-4" />
@@ -72,6 +104,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                         <Link
                           key={tag}
                           href={`/blog?search=${encodeURIComponent(tag)}`}
+                          prefetch={false}
                           className="transition-colors hover:text-foreground"
                         >
                           #{tag}
@@ -82,6 +115,32 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                 )}
               </div>
             </header>
+
+            {/* JSON-LD Article */}
+            <Script id="ld-article" type="application/ld+json">
+              {JSON.stringify({
+                "@context": "https://schema.org",
+                "@type": "Article",
+                headline: post.title,
+                description: post.excerpt || post.title,
+                author: [{ "@type": "Person", name: post.author || "PMS" }],
+                datePublished: post.publishedAt,
+                dateModified: post.updatedAt,
+                image: post.coverImage ? [post.coverImage] : undefined,
+                mainEntityOfPage: {
+                  "@type": "WebPage",
+                  "@id": `https://my-blog.com/blog/${post.slug}`,
+                },
+                publisher: {
+                  "@type": "Organization",
+                  name: "PMS Dev Blog",
+                  logo: {
+                    "@type": "ImageObject",
+                    url: "https://my-blog.com/favicon.svg",
+                  },
+                },
+              })}
+            </Script>
 
             {/* Post Content */}
             <div className="prose prose-neutral dark:prose-invert mb-12 max-w-none">

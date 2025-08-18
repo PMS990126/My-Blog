@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
+import { SafeImage } from "@/components/safe-image";
 import { Calendar } from "lucide-react";
 import { BlogPost } from "@/lib/notion";
 import { formatDate } from "@/lib/utils";
@@ -15,6 +16,7 @@ export function BlogPostCard({ post, variant = "card" }: BlogPostCardProps) {
       <article className="group relative rounded-lg border border-border bg-card p-6 transition-all duration-200 hover:border-foreground/20 hover:bg-muted/40 hover:shadow-md dark:border-white/15 dark:hover:border-white/25 dark:hover:bg-white/5">
         <Link
           href={`/blog/${post.slug}`}
+          prefetch={false}
           className="absolute inset-0 z-10"
           aria-label={post.title}
         />
@@ -22,11 +24,13 @@ export function BlogPostCard({ post, variant = "card" }: BlogPostCardProps) {
           {/* 썸네일 */}
           {post.coverImage && (
             <div className="relative aspect-video w-full overflow-hidden rounded-lg md:aspect-auto md:h-32 md:w-48 md:flex-shrink-0">
-              <Image
+              <SafeImage
                 src={post.coverImage}
                 alt={post.title}
                 fill
+                sizes="(max-width: 768px) 100vw, 192px"
                 className="object-cover transition-transform duration-300 group-hover:scale-105"
+                fallbackSrc="/file.svg"
               />
             </div>
           )}
@@ -77,14 +81,21 @@ export function BlogPostCard({ post, variant = "card" }: BlogPostCardProps) {
   // 기존 카드 스타일
   return (
     <article className="group relative overflow-hidden rounded-lg border border-border bg-card transition-all duration-300 hover:border-foreground/20 hover:bg-muted/40 hover:shadow-lg dark:border-white/15 dark:hover:border-white/25 dark:hover:bg-white/5">
-      <Link href={`/blog/${post.slug}`} className="absolute inset-0 z-10" aria-label={post.title} />
+      <Link
+        href={`/blog/${post.slug}`}
+        prefetch={false}
+        className="absolute inset-0 z-10"
+        aria-label={post.title}
+      />
       {post.coverImage && (
         <div className="relative aspect-video overflow-hidden">
-          <Image
+          <SafeImage
             src={post.coverImage}
             alt={post.title}
             fill
+            sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
             className="object-cover transition-transform duration-300 group-hover:scale-105"
+            fallbackSrc="/file.svg"
           />
         </div>
       )}
