@@ -13,7 +13,7 @@ interface CategorySidebarProps {
 }
 
 export function CategorySidebar({
-  categories: _categories, // intentionally unused (preset list is fixed)
+  categories, // eslint-disable-line @typescript-eslint/no-unused-vars
   posts,
   nowIso,
   currentCategory,
